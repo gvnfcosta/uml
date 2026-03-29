@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>UML – Diagrama de Casos de Uso</title>
+<style>
+  :root {
+    --primary: #2c3e7a;
+    
+    --accent: #e74c3c;
+    --green: #27ae60;
+    --yellow: #f39c12;
+    --light: #f0f4ff;
+    --border: #cdd5e8;
+    --text: #1a1a2e;
+    --muted: #6b7280;
+    --white: #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #eef1f8; color: var(--text); }
+
+  /* NAV */
+  nav {
+    background: var(--primary);
+    padding: 0;
+    display: flex;
+    align-items: center;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 8px #0003;
+  }
+  .nav-brand { color: #fff; font-size: 1.1rem; font-weight: 700; padding: 14px 24px; border-right: 1px solid #ffffff22; white-space: nowrap; }
+  .nav-tabs { display: flex; overflow-x: auto; }
+  .nav-tab {
+    color: #ffffffaa; font-size: 0.88rem; padding: 14px 20px;
+    cursor: pointer; border-bottom: 3px solid transparent;
+    white-space: nowrap; transition: all .2s;
+  }
+  .nav-tab:hover { color: #fff; background: #ffffff11; }
+  .nav-tab.active { color: #fff; border-bottom-color: #f39c12; font-weight: 600; }
+
+  /* PAGES */
+  .page { display: none; max-width: 900px; margin: 0 auto; padding: 32px 20px 60px; }
+  .page.active { display: block; }
+
+  /* CARDS */
+  .card {
+    background: var(--white); border-radius: 12px;
+    box-shadow: 0 2px 12px #0001; border: 1px solid var(--border);
+    padding: 28px; margin-bottom: 24px;
+  }
+  h1 { font-size: 1.7rem; color: var(--primary); margin-bottom: 8px; }
+  h2 { font-size: 1.25rem; color: var(--primary); margin-bottom: 14px; border-left: 4px solid var(--primary); padding-left: 12px; }
+  h3 { font-size: 1.05rem; color: var(--primary); margin-bottom: 10px; }
+  p { line-height: 1.7; margin-bottom: 10px; color: #333; }
+  ul, ol { padding-left: 20px; line-height: 1.9; }
+  li { margin-bottom: 4px; }
+
+  .tag {
+    display: inline-block; border-radius: 20px; padding: 2px 12px;
+    font-size: 0.78rem; font-weight: 700; margin-right: 6px; margin-bottom: 4px;
+  }
+  .tag-blue { background: #dbeafe; color: #1e40af; }
+  .tag-red  { background: #fee2e2; color: #991b1b; }
+  .tag-green{ background: #dcfce7; color: #166534; }
+  .tag-yellow{background: #fef9c3; color: #854d0e; }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  th { background: var(--primary); color: #fff; padding: 10px 14px; text-align: left; }
+  td { padding: 9px 14px; border-bottom: 1px solid var(--border); }
+  tr:nth-child(even) td { background: #f7f9ff; }
+
+  /* NOTATION BOXES */
+  .notation-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 8px; }
+  .notation-item {
+    border: 1.5px solid var(--border); border-radius: 10px;
+    padding: 16px; text-align: center; background: var(--light);
+  }
+  .notation-item svg { display: block; margin: 0 auto 10px; }
+  .notation-item strong { display: block; color: var(--primary); margin-bottom: 4px; font-size: 0.92rem; }
+  .notation-item span { font-size: 0.8rem; color: var(--muted); }
+
+  /* ALERT BOXES */
+  .alert { border-radius: 8px; padding: 14px 18px; margin: 16px 0; font-size: 0.92rem; }
+  .alert-info  { background: #eff6ff; border-left: 4px solid #3b82f6; color: #1e40af; }
+  .alert-warn  { background: #fffbeb; border-left: 4px solid #f59e0b; color: #78350f; }
+  .alert-tip   { background: #f0fdf4; border-left: 4px solid #22c55e; color: #14532d; }
+  .alert-error { background: #fef2f2; border-left: 4px solid #ef4444; color: #7f1d1d; }
+
+  /* SVG DIAGRAM AREA */
+  .diagram-wrap {
+    background: #fff; border: 1.5px solid var(--border); border-radius: 10px;
+    padding: 16px; overflow-x: auto; margin: 16px 0;
+  }
+
+  /* QUIZ */
+  .quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+  .quiz-score-badge {
+    background: var(--primary); color: #fff; border-radius: 20px;
+    padding: 6px 18px; font-weight: 700; font-size: 0.9rem;
+  }
+  .progress-bar-wrap { background: #e2e8f0; border-radius: 10px; height: 8px; margin-bottom: 24px; }
+  .progress-bar { background: var(--primary); height: 8px; border-radius: 10px; transition: width .4s; }
+
+  .question-card {
+    background: #fff; border: 1.5px solid var(--border); border-radius: 12px;
+    padding: 24px; margin-bottom: 20px;
+  }
+  .question-card.correct { border-color: var(--green); background: #f0fff4; }
+  .question-card.wrong   { border-color: var(--accent); background: #fff5f5; }
+
+  .q-number { font-size: 0.78rem; font-weight: 700; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .05em; }
+  .q-type   { font-size: 0.75rem; background: #e0e7ff; color: #3730a3; padding: 2px 8px; border-radius: 12px; margin-left: 8px; }
+  .q-text   { font-size: 1rem; font-weight: 600; color: var(--text); margin-bottom: 16px; line-height: 1.5; }
+
+  .option-btn {
+    display: block; width: 100%; text-align: left;
+    background: #f8faff; border: 1.5px solid var(--border); border-radius: 8px;
+    padding: 11px 16px; margin-bottom: 8px; cursor: pointer;
+    font-size: 0.92rem; transition: all .15s; color: var(--text);
+  }
+  .option-btn:hover:not(:disabled) { border-color: var(--primary); background: var(--light); }
+  .option-btn.selected { border-color: var(--primary); background: #dbeafe; font-weight: 600; }
+  .option-btn.correct  { border-color: var(--green); background: #dcfce7; color: #14532d; font-weight: 600; }
+  .option-btn.wrong    { border-color: var(--accent); background: #fee2e2; color: #7f1d1d; }
+  .option-btn:disabled { cursor: default; }
+
+  .confirm-btn {
+    background: var(--primary); color: #fff; border: none; border-radius: 8px;
+    padding: 10px 28px; font-size: 0.92rem; font-weight: 600; cursor: pointer;
+    transition: background .15s; margin-top: 8px;
+  }
+  .confirm-btn:hover { background: #1e2d6b; }
+  .confirm-btn:disabled { background: #94a3b8; cursor: default; }
+
+  .feedback-box { border-radius: 8px; padding: 12px 16px; margin-top: 14px; font-size: 0.9rem; line-height: 1.6; display: none; }
+  .feedback-box.show { display: block; }
+  .feedback-correct { background: #f0fff4; border-left: 4px solid var(--green); color: #14532d; }
+  .feedback-wrong   { background: #fef2f2; border-left: 4px solid var(--accent); color: #7f1d1d; }
+
+  /* TRUE/FALSE */
+  .tf-group { display: flex; gap: 12px; margin-bottom: 8px; }
+  .tf-btn {
+    flex: 1; padding: 12px; border: 1.5px solid var(--border); border-radius: 8px;
+    background: #f8faff; cursor: pointer; font-weight: 700; font-size: 0.95rem;
+    transition: all .15s;
+  }
+  .tf-btn:hover:not(:disabled) { border-color: var(--primary); }
+  .tf-btn.selected { border-color: var(--primary); background: var(--light); }
+  .tf-btn.correct  { border-color: var(--green); background: #dcfce7; color: #14532d; }
+  .tf-btn.wrong    { border-color: var(--accent); background: #fee2e2; color: #7f1d1d; }
+
+  /* RESULT */
+  .result-screen { text-align: center; padding: 32px 0; }
+  .result-circle {
+    width: 120px; height: 120px; border-radius: 50%; margin: 0 auto 20px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2rem; font-weight: 800; border: 6px solid;
+  }
+  .result-msg { font-size: 1.15rem; font-weight: 700; margin-bottom: 8px; }
+  .result-sub { color: var(--muted); font-size: 0.95rem; margin-bottom: 24px; }
+  .result-breakdown { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 28px; }
+  .rb-item { background: #f8faff; border: 1px solid var(--border); border-radius: 10px; padding: 14px 20px; min-width: 100px; }
+  .rb-num  { font-size: 1.6rem; font-weight: 800; }
+  .rb-lbl  { font-size: 0.78rem; color: var(--muted); }
+  .restart-btn {
+    background: var(--primary); color: #fff; border: none; border-radius: 8px;
+    padding: 12px 36px; font-size: 1rem; font-weight: 700; cursor: pointer;
+  }
+  .restart-btn:hover { background: #1e2d6b; }
+
+  /* TABS inside page */
+  .inner-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .inner-tab {
+    padding: 7px 18px; border-radius: 20px; border: 1.5px solid var(--border);
+    background: #fff; cursor: pointer; font-size: 0.85rem; font-weight: 600;
+    color: var(--muted); transition: all .15s;
+  }
+  .inner-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .inner-page { display: none; }
+  .inner-page.active { display: block; }
+
+  code {
+    background: #f1f5f9; border: 1px solid var(--border);
+    border-radius: 4px; padding: 1px 6px; font-size: 0.88em; color: #c0392b;
+  }
+
+  @media(max-width:600px){
+    .notation-grid { grid-template-columns: 1fr 1fr; }
+    .result-breakdown { gap: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">📐 UML – Casos de Uso</div>
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="showPage('teoria')">📚 Teoria</div>
+    <div class="nav-tab" onclick="showPage('notacao')">🔣 Notação</div>
+    <div class="nav-tab" onclick="showPage('exemplos')">🗂️ Exemplos</div>
+    <div class="nav-tab" onclick="showPage('quiz')">✏️ Questionário</div>
+    <div class="nav-tab" onclick="showPage('gabarito')">✅ Gabarito</div>
+  </div>
+</nav>
+
+<!-- ==================== TEORIA ==================== -->
+<div class="page active" id="page-teoria">
+
+  <div class="card">
+    <h1>Diagrama de Casos de Uso</h1>
+    <p>O <strong>Diagrama de Casos de Uso</strong> é um dos diagramas comportamentais da UML (<em>Unified Modeling Language</em>). Ele descreve o comportamento de um sistema do ponto de vista do usuário, mostrando <strong>quem</strong> interage com o sistema e <strong>o que</strong> o sistema faz.</p>
+    <div class="alert alert-info">💡 <strong>Objetivo principal:</strong> comunicar o escopo e os requisitos funcionais de um sistema de forma simples e visual, compreensível mesmo por pessoas não técnicas.</div>
+  </div>
+
+  <div class="card">
+    <h2>Elementos Fundamentais</h2>
+    <table>
+      <tr><th>Elemento</th><th>Descrição</th><th>Exemplo</th></tr>
+      <tr><td><strong>Ator</strong></td><td>Entidade externa que interage com o sistema (pessoa, sistema externo, dispositivo)</td><td>Cliente, Administrador, Sistema de Pagamento</td></tr>
+      <tr><td><strong>Caso de Uso</strong></td><td>Funcionalidade ou serviço que o sistema oferece a um ator</td><td>Realizar Compra, Emitir Nota Fiscal</td></tr>
+      <tr><td><strong>Fronteira do Sistema</strong></td><td>Retângulo que delimita o que é ou não parte do sistema</td><td>Caixa com o nome do sistema</td></tr>
+      <tr><td><strong>Associação</strong></td><td>Linha simples entre ator e caso de uso</td><td>Cliente ——— Realizar Compra</td></tr>
+      <tr><td><strong>&lt;&lt;include&gt;&gt;</strong></td><td>Relação obrigatória: um caso de uso sempre inclui outro</td><td>Realizar Compra inclui Autenticar-se</td></tr>
+      <tr><td><strong>&lt;&lt;extend&gt;&gt;</strong></td><td>Relação opcional/condicional: um caso de uso pode estender outro</td><td>Cadastrar-se estende Autenticar-se</td></tr>
+      <tr><td><strong>Generalização</strong></td><td>Herança entre atores ou entre casos de uso</td><td>Gerente herda de Funcionário</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Include vs Extend — Diferença Crucial</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px;">
+      <div class="alert alert-info">
+        <strong>🔵 &lt;&lt;include&gt;&gt;</strong><br><br>
+        • Comportamento <strong>obrigatório</strong><br>
+        • O caso base <em>sempre</em> executa o incluído<br>
+        • Seta aponta do caso base → incluído<br>
+        • Evita repetição de lógica comum<br><br>
+        <em>Exemplo: "Realizar Compra" sempre inclui "Efetuar Pagamento"</em>
+      </div>
+      <div class="alert alert-warn">
+        <strong>🔴 &lt;&lt;extend&gt;&gt;</strong><br><br>
+        • Comportamento <strong>opcional ou condicional</strong><br>
+        • Só ocorre em certas situações<br>
+        • Seta aponta do extensor → caso base<br>
+        • Representa variações ou exceções<br><br>
+        <em>Exemplo: "Cadastrar-se" estende "Autenticar-se" (só na 1ª vez)</em>
+      </div>
+    </div>
+    <div class="alert alert-tip" style="margin-top:12px;">
+      ✅ <strong>Dica mnemônica:</strong> <code>include</code> = ingrediente obrigatório da receita. <code>extend</code> = topping opcional da pizza.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Generalização de Atores</h2>
+    <p>Quando dois atores compartilham casos de uso em comum, o ator filho <strong>herda</strong> as associações do ator pai e pode ter casos de uso adicionais.</p>
+    <div class="alert alert-warn">⚠️ A seta de generalização aponta do filho para o pai (triângulo vazio na ponta do pai).</div>
+    <p><strong>Exemplo:</strong> "Gerente" e "Atendente" são filhos de "Funcionário". Ambos herdam "Autenticar-se", mas Gerente também acessa "Emitir Relatório".</p>
+  </div>
+
+  <div class="card">
+    <h2>Regras Importantes</h2>
+    <ul>
+      <li>Todo caso de uso deve estar dentro da fronteira do sistema.</li>
+      <li>Atores ficam <strong>fora</strong> da fronteira do sistema.</li>
+      <li>A linha entre ator e caso de uso é simples (sem seta).</li>
+      <li>Casos de uso são escritos com <strong>verbo no infinitivo</strong>: "Realizar Pedido", "Emitir Relatório".</li>
+      <li>Um caso de uso pode ser associado a mais de um ator.</li>
+      <li>Nem todo caso de uso precisa ter <code>include</code> ou <code>extend</code>.</li>
+      <li><code>&lt;&lt;extend&gt;&gt;</code> e <code>&lt;&lt;include&gt;&gt;</code> usam linha <strong>tracejada</strong> com seta aberta.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Erros Comuns</h2>
+    <table>
+      <tr><th>❌ Erro</th><th>✅ Correto</th></tr>
+      <tr><td>Usar seta na linha ator–caso de uso</td><td>Linha simples sem seta</td></tr>
+      <tr><td>Inverter a direção do <code>extend</code></td><td>Seta sai do extensor e aponta ao caso base</td></tr>
+      <tr><td>Usar <code>include</code> para comportamentos opcionais</td><td>Usar <code>extend</code> para opcionais</td></tr>
+      <tr><td>Colocar atores dentro da fronteira</td><td>Atores sempre fora do retângulo</td></tr>
+      <tr><td>Nomear casos de uso com substantivos ("Login")</td><td>Usar verbos no infinitivo ("Autenticar-se")</td></tr>
+      <tr><td>Confundir generalização de ator com <code>extend</code></td><td>Generalização = herança entre atores (seta sólida com triângulo)</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ==================== NOTAÇÃO ==================== -->
+<div class="page" id="page-notacao">
+
+  <div class="card">
+    <h2>Guia Visual de Notação UML</h2>
+    <p>Referência rápida dos símbolos utilizados no Diagrama de Casos de Uso.</p>
+
+    <div class="notation-grid">
+
+      <div class="notation-item">
+        <svg width="60" height="80" viewBox="0 0 60 80">
+          <circle cx="30" cy="14" r="12" fill="none" stroke="#2c3e7a" stroke-width="2"/>
+          <line x1="30" y1="26" x2="30" y2="55" stroke="#2c3e7a" stroke-width="2"/>
+          <line x1="10" y1="40" x2="50" y2="40" stroke="#2c3e7a" stroke-width="2"/>
+          <line x1="30" y1="55" x2="12" y2="74" stroke="#2c3e7a" stroke-width="2"/>
+          <line x1="30" y1="55" x2="48" y2="74" stroke="#2c3e7a" stroke-width="2"/>
+        </svg>
+        <strong>Ator</strong>
+        <span>Boneco palito — entidade externa ao sistema</span>
+      </div>
+
+      <div class="notation-item">
+        <svg width="120" height="50" viewBox="0 0 120 50">
+          <ellipse cx="60" cy="25" rx="55" ry="20" fill="white" stroke="#2c3e7a" stroke-width="2"/>
+          <text x="60" y="30" text-anchor="middle" font-size="12" fill="#2c3e7a">Caso de Uso</text>
+        </svg>
+        <strong>Caso de Uso</strong>
+        <span>Elipse com nome em verbo</span>
+      </div>
+
+      <div class="notation-item">
+        <svg width="120" height="60" viewBox="0 0 120 60">
+          <rect x="5" y="5" width="110" height="50" fill="none" stroke="#555" stroke-width="1.5" stroke-dasharray="5,3" rx="4"/>
+          <text x="60" y="34" text-anchor="middle" font-size="11" fill="#555">Sistema</text>
+        </svg>
+        <strong>Fronteira</strong>
+        <span>Retângulo tracejado delimitando o sistema</span>
+      </div>
+
+      <div class="notation-item">
+        <svg width="120" height="40" viewBox="0 0 120 40">
+          <line x1="5" y1="20" x2="115" y2="20" stroke="#333" stroke-width="2"/>
+        </svg>
+        <strong>Associação</strong>
+        <span>Linha simples ator ↔ caso de uso</span>
+      </div>
+
+      <div class="notation-item">
+        <svg width="140" height="50" viewBox="0 0 140 50">
+          <line x1="5" y1="25" x2="115" y2="25" stroke="#2980b9" stroke-width="1.5" stroke-dasharray="6,4"/>
+          <polyline points="100,16 115,25 100,34" fill="none" stroke="#2980b9" stroke-width="1.5"/>
+          <text x="60" y="18" text-anchor="middle" font-size="10" fill="#2980b9">«include»</text>
+        </svg>
+        <strong>&lt;&lt;include&gt;&gt;</strong>
+        <span>Tracejada — comportamento obrigatório</span>
+      </div>
+
+      <div class="notation-item">
+        <svg width="140" height="50" viewBox="0 0 140 50">
+          <line x1="5" y1="25" x2="115" y2="25" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="6,4"/>
+          <polyline points="100,16 115,25 100,34" fill="none" stroke="#c0392b" stroke-width="1.5"/>
+          <text x="60" y="18" text-anchor="middle" font-size="10" fill="#c0392b">«extend»</text>
+        </svg>
+        <strong>&lt;&lt;extend&gt;&gt;</strong>
+        <span>Tracejada — comportamento opcional</span>
+      </div>
+
+      <div class="notation-item">
+        <svg width="140" height="50" viewBox="0 0 140 50">
+          <line x1="5" y1="25" x2="105" y2="25" stroke="#333" stroke-width="1.5"/>
+          <polygon points="105,16 120,25 105,34" fill="white" stroke="#333" stroke-width="1.5"/>
+        </svg>
+        <strong>Generalização</strong>
+        <span>Seta sólida com triângulo vazio — herança</span>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Direção das Setas — Resumo</h2>
+    <table>
+      <tr><th>Relação</th><th>Direção da seta</th><th>Linha</th></tr>
+      <tr><td>Associação (ator–caso de uso)</td><td>Sem seta (linha simples)</td><td>Sólida</td></tr>
+      <tr><td>&lt;&lt;include&gt;&gt;</td><td>Caso base → Caso incluído</td><td>Tracejada</td></tr>
+      <tr><td>&lt;&lt;extend&gt;&gt;</td><td>Caso extensor → Caso base</td><td>Tracejada</td></tr>
+      <tr><td>Generalização de ator</td><td>Filho → Pai</td><td>Sólida com triângulo vazio</td></tr>
+      <tr><td>Generalização de caso de uso</td><td>Especializado → Geral</td><td>Sólida com triângulo vazio</td></tr>
+    </table>
+    <div class="alert alert-warn" style="margin-top:16px;">
+      ⚠️ <strong>Atenção ao extend:</strong> a seta parte do caso que <em>estende</em> (opcional) em direção ao caso <em>base</em> (principal). Muitos alunos invertem essa direção!
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Exemplo de Diagrama Completo</h2>
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 780 480" xmlns="http://www.w3.org/2000/svg" font-family="Arial" font-size="12" style="max-width:100%">
+        <!-- boundary -->
+        <rect x="130" y="20" width="600" height="440" fill="white" stroke="#777" stroke-width="1.5" stroke-dasharray="6,3" rx="8"/>
+        <text x="430" y="14" text-anchor="middle" font-size="12" font-weight="bold" fill="#555">Sistema de Biblioteca</text>
+
+        <!-- Actor Usuário -->
+        <circle cx="55" cy="180" r="14" fill="none" stroke="#2c3e7a" stroke-width="2"/>
+        <line x1="55" y1="194" x2="55" y2="225" stroke="#2c3e7a" stroke-width="2"/>
+        <line x1="35" y1="208" x2="75" y2="208" stroke="#2c3e7a" stroke-width="2"/>
+        <line x1="55" y1="225" x2="38" y2="245" stroke="#2c3e7a" stroke-width="2"/>
+        <line x1="55" y1="225" x2="72" y2="245" stroke="#2c3e7a" stroke-width="2"/>
+        <text x="55" y="260" text-anchor="middle" font-size="11" font-weight="bold" fill="#2c3e7a">Usuário</text>
+
+        <!-- Actor Bibliotecário (herda de Usuário) -->
+        <circle cx="55" cy="340" r="14" fill="none" stroke="#2c3e7a" stroke-width="2"/>
+        <line x1="55" y1="354" x2="55" y2="382" stroke="#2c3e7a" stroke-width="2"/>
+        <line x1="35" y1="366" x2="75" y2="366" stroke="#2c3e7a" stroke-width="2"/>
+        <line x1="55" y1="382" x2="38" y2="400" stroke="#2c3e7a" stroke-width="2"/>
+        <line x1="55" y1="382" x2="72" y2="400" stroke="#2c3e7a" stroke-width="2"/>
+        <text x="55" y="415" text-anchor="middle" font-size="11" font-weight="bold" fill="#2c3e7a">Bibliotecário</text>
+        <!-- Generalização (Bibliotecário → Usuário) -->
+        <line x1="55" y1="326" x2="55" y2="272" stroke="#2c3e7a" stroke-width="1.5"/>
+        <polygon points="55,272 49,284 61,284" fill="white" stroke="#2c3e7a" stroke-width="1.5"/>
+
+        <!-- Use cases -->
+        <!-- Buscar Livro -->
+        <ellipse cx="310" cy="100" rx="90" ry="26" fill="white" stroke="#444" stroke-width="1.5"/>
+        <text x="310" y="105" text-anchor="middle" fill="#222">Buscar Livro</text>
+        <!-- Realizar Empréstimo -->
+        <ellipse cx="310" cy="200" rx="110" ry="26" fill="white" stroke="#444" stroke-width="1.5"/>
+        <text x="310" y="205" text-anchor="middle" fill="#222">Realizar Empréstimo</text>
+        <!-- Autenticar-se -->
+        <ellipse cx="550" cy="200" rx="95" ry="26" fill="white" stroke="#444" stroke-width="1.5"/>
+        <text x="550" y="205" text-anchor="middle" fill="#222">Autenticar-se</text>
+        <!-- Devolver Livro -->
+        <ellipse cx="310" cy="310" rx="100" ry="26" fill="white" stroke="#444" stroke-width="1.5"/>
+        <text x="310" y="315" text-anchor="middle" fill="#222">Devolver Livro</text>
+        <!-- Cadastrar Usuário -->
+        <ellipse cx="570" cy="310" rx="110" ry="26" fill="white" stroke="#444" stroke-width="1.5"/>
+        <text x="570" y="315" text-anchor="middle" fill="#222">Cadastrar Usuário</text>
+        <!-- Renovar Online -->
+        <ellipse cx="550" cy="100" rx="100" ry="26" fill="white" stroke="#444" stroke-width="1.5"/>
+        <text x="550" y="105" text-anchor="middle" fill="#222">Renovar Online</text>
+
+        <!-- Associations -->
+        <line x1="69" y1="180" x2="198" y2="140" stroke="#333" stroke-width="1.5"/>
+        <line x1="69" y1="190" x2="198" y2="200" stroke="#333" stroke-width="1.5"/>
+        <line x1="69" y1="350" x2="208" y2="310" stroke="#333" stroke-width="1.5"/>
+        <line x1="69" y1="100" x2="220" y2="100" stroke="#333" stroke-width="1.5"/>
+
+        <!-- include: Realizar Empréstimo → Autenticar-se -->
+        <line x1="420" y1="200" x2="453" y2="200" stroke="#2980b9" stroke-width="1.3" stroke-dasharray="5,3"/>
+        <polyline points="446,193 455,200 446,207" fill="none" stroke="#2980b9" stroke-width="1.3"/>
+        <text x="436" y="193" text-anchor="middle" font-size="9" fill="#2980b9">«include»</text>
+
+        <!-- extend: Renovar Online → Realizar Empréstimo -->
+        <line x1="490" y1="118" x2="395" y2="180" stroke="#c0392b" stroke-width="1.3" stroke-dasharray="5,3"/>
+        <polyline points="402,175 393,183 385,173" fill="none" stroke="#c0392b" stroke-width="1.3"/>
+        <text x="450" y="145" text-anchor="middle" font-size="9" fill="#c0392b">«extend»</text>
+
+        <!-- Bibliotecário → Cadastrar Usuário -->
+        <line x1="69" y1="360" x2="458" y2="315" stroke="#333" stroke-width="1.5"/>
+
+      </svg>
+    </div>
+    <p style="color:var(--muted);font-size:0.85rem;margin-top:6px;">▲ Exemplo simplificado — Sistema de Biblioteca com herança de ator, include e extend.</p>
+  </div>
+</div>
+
+<!-- ==================== EXEMPLOS ==================== -->
+<div class="page" id="page-exemplos">
+
+  <div class="inner-tabs">
+    <div class="inner-tab active" onclick="showInner('ex-ecommerce')">🛒 E-commerce</div>
+    <div class="inner-tab" onclick="showInner('ex-banco')">🏦 Banco</div>
+    <div class="inner-tab" onclick="showInner('ex-escola')">🎓 Escola</div>
+  </div>
+
+  <!-- E-COMMERCE -->
+  <div class="inner-page active" id="inner-ex-ecommerce">
+    <div class="card">
+      <h2>Sistema de Compras Online (E-commerce)</h2>
+      <p>Este é o sistema estudado em aula. Analise o diagrama e as relações descritas abaixo.</p>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 820 640" xmlns="http://www.w3.org/2000/svg" font-family="Arial" font-size="12" style="max-width:100%">
+          <rect x="140" y="25" width="640" height="600" fill="white" stroke="#777" stroke-width="1.5" stroke-dasharray="6,3" rx="8"/>
+          <text x="460" y="18" text-anchor="middle" font-size="12" font-weight="bold" fill="#555">Sistema de Compras Online</text>
+
+          <!-- Actor -->
+          <circle cx="60" cy="280" r="16" fill="none" stroke="#2c3e7a" stroke-width="2"/>
+          <line x1="60" y1="296" x2="60" y2="332" stroke="#2c3e7a" stroke-width="2"/>
+          <line x1="36" y1="312" x2="84" y2="312" stroke="#2c3e7a" stroke-width="2"/>
+          <line x1="60" y1="332" x2="40" y2="355" stroke="#2c3e7a" stroke-width="2"/>
+          <line x1="60" y1="332" x2="80" y2="355" stroke="#2c3e7a" stroke-width="2"/>
+          <text x="60" y="372" text-anchor="middle" font-size="12" font-weight="bold" fill="#2c3e7a">Cliente</text>
+
+          <!-- Use cases -->
+          <ellipse cx="310" cy="80" rx="100" ry="28" fill="white" stroke="#444" stroke-width="1.5"/>
+          <text x="310" y="85" text-anchor="middle">Buscar Produto</text>
+
+          <ellipse cx="480" cy="200" rx="100" ry="28" fill="white" stroke="#444" stroke-width="1.5"/>
+          <text x="480" y="205" text-anchor="middle">Autenticar-se</text>
+
+          <ellipse cx="310" cy="330" rx="100" ry="28" fill="white" stroke="#444" stroke-width="1.5"/>
+          <text x="310" y="335" text-anchor="middle">Realizar Compra</text>
+
+          <ellipse cx="310" cy="470" rx="110" ry="28" fill="white" stroke="#444" stroke-width="1.5"/>
+          <text x="310" y="475" text-anchor="middle">Efetuar Pagamento</text>
+
+          <ellipse cx="310" cy="590" rx="115" ry="28" fill="white" stroke="#444" stroke-width="1.5"/>
+          <text x="310" y="595" text-anchor="middle">Emitir Comprovante</text>
+
+          <ellipse cx="680" cy="120" rx="100" ry="28" fill="white" stroke="#444" stroke-width="1.5"/>
+          <text x="680" y="125" text-anchor="middle">Cadastrar-se</text>
+
+          <ellipse cx="680" cy="200" rx="100" ry="28" fill="white" stroke="#444" stroke-width="1.5"/>
+          <text x="680" y="205" text-anchor="middle">Atualizar Dados</text>
+
+          <ellipse cx="680" cy="285" rx="115" ry="28" fill="white" stroke="#444" stroke-width="1.5"/>
+          <text x="680" y="290" text-anchor="middle">Regularizar Pendências</text>
+
+          <ellipse cx="660" cy="440" rx="110" ry="28" fill="white" stroke="#444" stroke-width="1.5"/>
+          <text x="660" y="445" text-anchor="middle">Pagamento à Vista</text>
+
+          <ellipse cx="660" cy="520" rx="110" ry="28" fill="white" stroke="#444" stroke-width="1.5"/>
+          <text x="660" y="525" text-anchor="middle">Pagamento a Prazo</text>
+
+          <!-- Associations: Actor → use cases (plain lines) -->
+          <line x1="76" y1="267" x2="208" y2="100" stroke="#333" stroke-width="1.5"/>
+          <line x1="76" y1="295" x2="208" y2="330" stroke="#333" stroke-width="1.5"/>
+
+          <!-- extend: Buscar Produto → Realizar Compra -->
+          <line x1="310" y1="108" x2="310" y2="300" stroke="#c0392b" stroke-width="1.3" stroke-dasharray="5,3"/>
+          <polyline points="302,302 310,312 318,302" fill="none" stroke="#c0392b" stroke-width="1.3"/>
+          <text x="250" y="210" font-size="9" fill="#c0392b">«extend»</text>
+
+          <!-- include: Realizar Compra → Autenticar-se -->
+          <line x1="385" y1="312" x2="418" y2="220" stroke="#2980b9" stroke-width="1.3" stroke-dasharray="5,3"/>
+          <polyline points="413,228 420,218 425,228" fill="none" stroke="#2980b9" stroke-width="1.3"/>
+          <text x="360" y="268" font-size="9" fill="#2980b9">«include»</text>
+
+          <!-- extend: Autenticar-se → Cadastrar-se -->
+          <line x1="565" y1="185" x2="620" y2="138" stroke="#c0392b" stroke-width="1.3" stroke-dasharray="5,3"/>
+          <polyline points="615,143 622,133 628,143" fill="none" stroke="#c0392b" stroke-width="1.3"/>
+          <text x="570" y="155" font-size="9" fill="#c0392b">«extend»</text>
+
+          <!-- extend: Autenticar-se → Atualizar Dados -->
+          <line x1="580" y1="200" x2="578" y2="200" stroke="#c0392b" stroke-width="1.3" stroke-dasharray="5,3"/>
+          <line x1="580" y1="200" x2="640" y2="200" stroke="#c0392b" stroke-width="1.3" stroke-dasharray="5,3" marker-end="url(#oa)"/>
+          <text x="592" y="193" font-size="9" fill="#c0392b">«extend»</text>
+
+          <!-- extend: Autenticar-se → Regularizar Pendências -->
+          <line x1="566" y1="217" x2="620" y2="268" stroke="#c0392b" stroke-width="1.3" stroke-dasharray="5,3"/>
+          <polyline points="614,265 623,273 613,278" fill="none" stroke="#c0392b" stroke-width="1.3"/>
+          <text x="566" y="253" font-size="9" fill="#c0392b">«extend»</text>
+
+          <!-- include: Realizar Compra → Efetuar Pagamento -->
+          <line x1="310" y1="358" x2="310" y2="440" stroke="#2980b9" stroke-width="1.3" stroke-dasharray="5,3"/>
+          <polyline points="302,440 310,450 318,440" fill="none" stroke="#2980b9" stroke-width="1.3"/>
+          <text x="220" y="404" font-size="9" fill="#2980b9">«include»</text>
+
+          <!-- extend: Pagamento à Vista → Efetuar Pagamento -->
+          <line x1="572" y1="448" x2="424" y2="475" stroke="#c0392b" stroke-width="1.3" stroke-dasharray="5,3"/>
+          <polyline points="430,469 422,477 416,468" fill="none" stroke="#c0392b" stroke-width="1.3"/>
+          <text x="484" y="453" font-size="9" fill="#c0392b">«extend»</text>
+
+          <!-- extend: Pagamento a Prazo → Efetuar Pagamento -->
+          <line x1="575" y1="508" x2="424" y2="487" stroke="#c0392b" stroke-width="1.3" stroke-dasharray="5,3"/>
+          <polyline points="432,490 422,484 428,473" fill="none" stroke="#c0392b" stroke-width="1.3"/>
+          <text x="484" y="504" font-size="9" fill="#c0392b">«extend»</text>
+
+          <!-- include: Efetuar Pagamento → Emitir Comprovante -->
+          <line x1="310" y1="498" x2="310" y2="560" stroke="#2980b9" stroke-width="1.3" stroke-dasharray="5,3"/>
+          <polyline points="302,560 310,570 318,560" fill="none" stroke="#2980b9" stroke-width="1.3"/>
+          <text x="220" y="535" font-size="9" fill="#2980b9">«include»</text>
+
+        </svg>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Análise das Relações</h2>
+      <table>
+        <tr><th>Relação</th><th>Tipo</th><th>Justificativa</th></tr>
+        <tr><td>Realizar Compra → Autenticar-se</td><td><span class="tag tag-blue">include</span></td><td>Toda compra exige autenticação — obrigatório</td></tr>
+        <tr><td>Buscar Produto → Realizar Compra</td><td><span class="tag tag-red">extend</span></td><td>Buscar é opcional antes de comprar</td></tr>
+        <tr><td>Cadastrar-se → Autenticar-se</td><td><span class="tag tag-red">extend</span></td><td>Só na primeira vez — condicional</td></tr>
+        <tr><td>Atualizar Dados → Autenticar-se</td><td><span class="tag tag-red">extend</span></td><td>Opcional — o cliente pode ou não atualizar</td></tr>
+        <tr><td>Regularizar Pendências → Autenticar-se</td><td><span class="tag tag-red">extend</span></td><td>Só se houver pendências — condicional</td></tr>
+        <tr><td>Realizar Compra → Efetuar Pagamento</td><td><span class="tag tag-blue">include</span></td><td>Pagamento é parte obrigatória da compra</td></tr>
+        <tr><td>Pagamento à Vista → Efetuar Pagamento</td><td><span class="tag tag-red">extend</span></td><td>Uma das formas opcionais de pagar</td></tr>
+        <tr><td>Pagamento a Prazo → Efetuar Pagamento</td><td><span class="tag tag-red">extend</span></td><td>Outra forma opcional de pagar</td></tr>
+        <tr><td>Efetuar Pagamento → Emitir Comprovante</td><td><span class="tag tag-blue">include</span></td><td>Comprovante sempre emitido após pagamento</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- BANCO -->
+  <div class="inner-page" id="inner-ex-banco">
+    <div class="card">
+      <h2>Sistema Bancário Online</h2>
+      <p>Analise o enunciado e as relações a seguir.</p>
+      <div class="alert alert-info">📄 <strong>Enunciado:</strong> Um cliente pode consultar saldo, realizar transferência ou pagar contas. Para qualquer operação, é necessário autenticar-se. Ao realizar uma transferência, é obrigatório confirmar os dados. Caso o cliente esqueça a senha, pode recuperá-la. O gerente, além das funções de cliente, pode bloquear contas e emitir extratos gerenciais.</div>
+      <table style="margin-top:16px">
+        <tr><th>Relação</th><th>Tipo</th><th>Justificativa</th></tr>
+        <tr><td>Qualquer operação → Autenticar-se</td><td><span class="tag tag-blue">include</span></td><td>Sempre obrigatório</td></tr>
+        <tr><td>Recuperar Senha → Autenticar-se</td><td><span class="tag tag-red">extend</span></td><td>Só quando o cliente esquece a senha</td></tr>
+        <tr><td>Realizar Transferência → Confirmar Dados</td><td><span class="tag tag-blue">include</span></td><td>Sempre obrigatório confirmar</td></tr>
+        <tr><td>Gerente herda de Cliente</td><td><span class="tag tag-yellow">generalização</span></td><td>Gerente tem todas as funções do cliente + extras</td></tr>
+        <tr><td>Bloquear Conta — Gerente</td><td>associação</td><td>Exclusivo do gerente</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ESCOLA -->
+  <div class="inner-page" id="inner-ex-escola">
+    <div class="card">
+      <h2>Sistema Escolar</h2>
+      <div class="alert alert-info">📄 <strong>Enunciado:</strong> Um aluno pode consultar notas, ver horários e solicitar matrícula. Para solicitar matrícula, é necessário estar autenticado. Se for novo aluno, deve se cadastrar antes. O professor pode lançar notas e registrar presença. A secretaria pode matricular alunos e emitir histórico. Professores e secretaria herdam de Funcionário.</div>
+      <table style="margin-top:16px">
+        <tr><th>Relação</th><th>Tipo</th></tr>
+        <tr><td>Solicitar Matrícula → Autenticar-se</td><td><span class="tag tag-blue">include</span></td></tr>
+        <tr><td>Cadastrar-se → Autenticar-se</td><td><span class="tag tag-red">extend</span></td></tr>
+        <tr><td>Professor herda de Funcionário</td><td><span class="tag tag-yellow">generalização</span></td></tr>
+        <tr><td>Secretaria herda de Funcionário</td><td><span class="tag tag-yellow">generalização</span></td></tr>
+        <tr><td>Lançar Notas — Professor</td><td>associação direta</td></tr>
+        <tr><td>Emitir Histórico — Secretaria</td><td>associação direta</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== QUIZ ==================== -->
+<div class="page" id="page-quiz">
+  <div class="card" id="quiz-container">
+    <div class="quiz-header">
+      <div>
+        <h2 style="margin:0">Questionário — Casos de Uso UML</h2>
+        <p style="margin:4px 0 0;color:var(--muted);font-size:0.85rem">20 questões • Múltipla escolha, V/F e análise</p>
+      </div>
+      <div class="quiz-score-badge" id="score-badge">0 / 20</div>
+    </div>
+    <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar" style="width:0%"></div></div>
+    <div id="questions-wrap"></div>
+    <div style="text-align:center;margin-top:24px">
+      <button class="confirm-btn" id="submit-btn" onclick="submitQuiz()" disabled>📊 Ver Resultado</button>
+    </div>
+  </div>
+  <div class="card" id="result-container" style="display:none">
+    <div class="result-screen" id="result-screen"></div>
+  </div>
+</div>
+
+<!-- ==================== GABARITO ==================== -->
+<div class="page" id="page-gabarito">
+  <div class="card">
+    <h2>Gabarito Comentado</h2>
+    <p>Resolução completa das 20 questões do questionário com justificativas.</p>
+  </div>
+  <div id="gabarito-list"></div>
+</div>
+
+<script>
+// ===================== NAVIGATION =====================
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+function showInner(id) {
+  document.querySelectorAll('.inner-page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.inner-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('inner-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ===================== QUIZ DATA =====================
+const questions = [
+  {
+    id: 1, type: 'mc',
+    text: 'O que representa um ATOR em um Diagrama de Casos de Uso?',
+    options: [
+      'Uma funcionalidade interna do sistema',
+      'Uma entidade externa que interage com o sistema',
+      'Um banco de dados conectado ao sistema',
+      'Um caso de uso especial com herança'
+    ],
+    answer: 1,
+    explanation: 'Um ator é qualquer entidade EXTERNA ao sistema (pessoa, sistema externo, dispositivo) que interage com ele. Exemplos: Cliente, Administrador, Gateway de Pagamento.'
+  },
+  {
+    id: 2, type: 'mc',
+    text: 'Qual símbolo é utilizado para representar um Caso de Uso?',
+    options: ['Retângulo', 'Losango', 'Elipse (oval)', 'Triângulo'],
+    answer: 2,
+    explanation: 'Casos de uso são representados por elipses (formas ovais) contendo o nome da funcionalidade em verbo no infinitivo.'
+  },
+  {
+    id: 3, type: 'tf',
+    text: 'A relação <<include>> indica um comportamento OPCIONAL entre dois casos de uso.',
+    answer: false,
+    explanation: '<<include>> indica comportamento OBRIGATÓRIO. O caso de uso base SEMPRE executa o incluído. Para comportamentos opcionais, usa-se <<extend>>.'
+  },
+  {
+    id: 4, type: 'mc',
+    text: 'Em qual direção aponta a seta de uma relação <<extend>>?',
+    options: [
+      'Do caso base para o caso extensor',
+      'Do caso extensor para o caso base',
+      'Não há seta — é uma linha simples',
+      'A seta é bidirecional'
+    ],
+    answer: 1,
+    explanation: 'No <<extend>>, a seta parte do caso EXTENSOR (opcional) e aponta para o caso BASE (principal). Exemplo: "Cadastrar-se" → "Autenticar-se".'
+  },
+  {
+    id: 5, type: 'mc',
+    text: 'Qual tipo de linha é usada para relações <<include>> e <<extend>>?',
+    options: ['Linha sólida com seta fechada', 'Linha tracejada com seta aberta', 'Linha sólida sem seta', 'Linha pontilhada com triângulo'],
+    answer: 1,
+    explanation: 'Relações <<include>> e <<extend>> usam linha TRACEJADA com seta aberta (não preenchida). A linha sólida sem seta é usada para a associação entre ator e caso de uso.'
+  },
+  {
+    id: 6, type: 'tf',
+    text: 'Atores devem ser representados DENTRO da fronteira do sistema.',
+    answer: false,
+    explanation: 'Atores ficam FORA da fronteira do sistema (retângulo). Os casos de uso é que ficam dentro. A fronteira delimita o escopo do sistema.'
+  },
+  {
+    id: 7, type: 'mc',
+    text: 'No sistema de compras online, por que "Realizar Compra" inclui "Autenticar-se"?',
+    options: [
+      'Porque autenticação é opcional',
+      'Porque toda compra exige que o cliente esteja autenticado',
+      'Porque é a primeira vez que o cliente acessa',
+      'Porque o sistema recomenda autenticação'
+    ],
+    answer: 1,
+    explanation: 'O <<include>> é usado porque TODA compra obrigatoriamente requer autenticação. Não é opcional nem condicional — é sempre necessário.'
+  },
+  {
+    id: 8, type: 'mc',
+    text: 'Por que "Cadastrar-se" usa <<extend>> em vez de <<include>> com "Autenticar-se"?',
+    options: [
+      'Porque cadastro é obrigatório sempre',
+      'Porque <<extend>> é mais simples de desenhar',
+      'Porque o cadastro ocorre apenas na primeira compra — é condicional',
+      'Porque <<include>> não pode ser usado com autenticação'
+    ],
+    answer: 2,
+    explanation: 'O cadastro só é necessário na PRIMEIRA compra. Por ser condicional (nem sempre ocorre), usa-se <<extend>>. Se fosse sempre obrigatório, seria <<include>>.'
+  },
+  {
+    id: 9, type: 'tf',
+    text: 'A relação entre um ator e um caso de uso deve ser representada por uma linha com seta.',
+    answer: false,
+    explanation: 'A associação entre ator e caso de uso é uma LINHA SIMPLES sem seta. Setas são usadas apenas em <<include>>, <<extend>> e generalizações.'
+  },
+  {
+    id: 10, type: 'mc',
+    text: 'O que é a Fronteira do Sistema em um Diagrama de Casos de Uso?',
+    options: [
+      'Uma linha que separa casos de uso de atores',
+      'Um retângulo que delimita o escopo do sistema',
+      'O conjunto de todos os atores do sistema',
+      'Uma relação entre dois sistemas diferentes'
+    ],
+    answer: 1,
+    explanation: 'A fronteira do sistema é um RETÂNGULO (geralmente com o nome do sistema no topo) que delimita o que está dentro e fora do escopo do sistema modelado.'
+  },
+  {
+    id: 11, type: 'mc',
+    text: 'Qual das opções abaixo é um nome CORRETO para um Caso de Uso?',
+    options: ['Login', 'Autenticação', 'Autenticar-se', 'Sistema de Login'],
+    answer: 2,
+    explanation: 'Casos de uso devem ser nomeados com VERBOS NO INFINITIVO que descrevam a interação. "Login" e "Autenticação" são substantivos. "Autenticar-se" é o formato correto.'
+  },
+  {
+    id: 12, type: 'mc',
+    text: 'Na generalização de atores, para onde aponta a seta?',
+    options: [
+      'Do ator pai para o ator filho',
+      'Do ator filho para o ator pai',
+      'É uma linha sem seta',
+      'A seta é tracejada bidirecional'
+    ],
+    answer: 1,
+    explanation: 'Na generalização, a seta SÓLIDA com triângulo vazio aponta do FILHO para o PAI — assim como na herança em POO. O filho herda os casos de uso do pai.'
+  },
+  {
+    id: 13, type: 'tf',
+    text: 'Um mesmo caso de uso pode estar associado a mais de um ator.',
+    answer: true,
+    explanation: 'Sim! Um caso de uso pode ser acessado por múltiplos atores. Exemplo: "Consultar Saldo" pode ser acessado tanto pelo Cliente quanto pelo Gerente.'
+  },
+  {
+    id: 14, type: 'mc',
+    text: 'Qual relação seria adequada para "Emitir Relatório Gerencial" em relação a um ator "Gerente" que herda de "Funcionário"?',
+    options: [
+      '<<include>> de Funcionário para Gerente',
+      '<<extend>> de Emitir Relatório para Autenticar-se',
+      'Associação direta entre Gerente e Emitir Relatório Gerencial',
+      'Generalização de Emitir Relatório para outros casos de uso'
+    ],
+    answer: 2,
+    explanation: 'Funcionalidades exclusivas de um ator são ligadas por ASSOCIAÇÃO DIRETA (linha simples). A herança entre atores não afeta a forma de ligar um caso de uso ao ator específico.'
+  },
+  {
+    id: 15, type: 'mc',
+    text: 'Por que "Pagamento à Vista" usa <<extend>> em vez de <<include>> com "Efetuar Pagamento"?',
+    options: [
+      'Porque à vista é o único método disponível',
+      'Porque o cliente escolhe entre à vista OU a prazo — é opcional/alternativo',
+      'Porque <<include>> não pode ter duas variações',
+      'Porque pagamento à vista é obrigatório'
+    ],
+    answer: 1,
+    explanation: 'O cliente escolhe UMA das formas de pagamento. Como são alternativas opcionais ao caso base "Efetuar Pagamento", ambas usam <<extend>>.'
+  },
+  {
+    id: 16, type: 'tf',
+    text: 'A UML (Unified Modeling Language) é uma linguagem de programação.',
+    answer: false,
+    explanation: 'UML é uma LINGUAGEM DE MODELAGEM, não de programação. Ela é usada para visualizar, especificar e documentar sistemas de software através de diagramas padronizados.'
+  },
+  {
+    id: 17, type: 'mc',
+    text: 'Qual dos diagramas abaixo NÃO pertence à UML?',
+    options: [
+      'Diagrama de Classes',
+      'Diagrama de Casos de Uso',
+      'Diagrama de Entidade-Relacionamento (ER)',
+      'Diagrama de Sequência'
+    ],
+    answer: 2,
+    explanation: 'O Diagrama ER (Entidade-Relacionamento) pertence à modelagem de dados (notação criada por Peter Chen), não à UML. Diagrama de Classes, Casos de Uso e Sequência são todos UML.'
+  },
+  {
+    id: 18, type: 'mc',
+    text: 'Analise: "Realizar Compra <<include>> Efetuar Pagamento <<include>> Emitir Comprovante". Isso significa que:',
+    options: [
+      'Comprovante só é emitido às vezes',
+      'Toda compra sempre gera pagamento e, após pagamento, sempre emite comprovante',
+      'Comprovante é emitido antes do pagamento',
+      'Pagamento é opcional na compra'
+    ],
+    answer: 1,
+    explanation: 'Cadeia de <<include>>: toda compra OBRIGATORIAMENTE inclui pagamento, e todo pagamento OBRIGATORIAMENTE inclui emissão de comprovante. Todos os passos são obrigatórios.'
+  },
+  {
+    id: 19, type: 'mc',
+    text: 'Qual é o erro no seguinte trecho: "Cliente → Realizar Compra" com seta sólida com ponta fechada?',
+    options: [
+      'Nenhum erro, está correto',
+      'A seta deveria ser tracejada',
+      'A associação entre ator e caso de uso deve ser uma linha simples SEM seta',
+      'Deveria ser <<include>>'
+    ],
+    answer: 2,
+    explanation: 'A associação entre ator e caso de uso é uma LINHA SIMPLES sem seta. Setas com ponta fechada são usadas em diagramas de classes para indicar navegabilidade, não em casos de uso.'
+  },
+  {
+    id: 20, type: 'mc',
+    text: 'Em um sistema de hospital: "Prescrever Medicamento" é exclusivo do Médico; "Agendar Consulta" é feito pelo Recepcionista. Ambos precisam autenticar-se. Qual estrutura é mais adequada?',
+    options: [
+      'Médico e Recepcionista herdam de Funcionário; <<include>> para Autenticar-se em cada caso de uso que precisar',
+      'Um único ator "Usuário" para ambos com <<extend>> em tudo',
+      'Médico <<extend>> Recepcionista',
+      'Autenticar-se <<include>> todos os outros casos de uso'
+    ],
+    answer: 0,
+    explanation: 'A modelagem correta usa GENERALIZAÇÃO (herança): Médico e Recepcionista herdam de Funcionário. Cada operação que exige login usa <<include>> com Autenticar-se. Isso evita repetição e é semanticamente correto.'
+  }
+];
+
+// ===================== RENDER QUIZ =====================
+let userAnswers = {};
+let answered = {};
+
+function renderQuiz() {
+  const wrap = document.getElementById('questions-wrap');
+  wrap.innerHTML = '';
+  questions.forEach((q, idx) => {
+    const div = document.createElement('div');
+    div.className = 'question-card';
+    div.id = 'qcard-' + q.id;
+
+    let optionsHTML = '';
+    if (q.type === 'mc') {
+      optionsHTML = q.options.map((opt, i) =>
+        `<button class="option-btn" id="opt-${q.id}-${i}" onclick="selectOption(${q.id},${i})">${String.fromCharCode(65+i)}) ${opt}</button>`
+      ).join('');
+    } else {
+      optionsHTML = `<div class="tf-group">
+        <button class="tf-btn" id="opt-${q.id}-true" onclick="selectTF(${q.id}, true)">✅ Verdadeiro</button>
+        <button class="tf-btn" id="opt-${q.id}-false" onclick="selectTF(${q.id}, false)">❌ Falso</button>
+      </div>`;
+    }
+
+    const typeLabel = q.type === 'mc' ? 'Múltipla Escolha' : 'Verdadeiro ou Falso';
+    div.innerHTML = `
+      <div class="q-number">Questão ${idx+1} de ${questions.length} <span class="q-type">${typeLabel}</span></div>
+      <div class="q-text">${q.text}</div>
+      ${optionsHTML}
+      <button class="confirm-btn" id="confirm-${q.id}" onclick="confirmAnswer(${q.id})" disabled style="margin-top:12px">Confirmar</button>
+      <div class="feedback-box" id="feedback-${q.id}"></div>
+    `;
+    wrap.appendChild(div);
+  });
+  buildGabarito();
+}
+
+function selectOption(qid, idx) {
+  if (answered[qid]) return;
+  userAnswers[qid] = idx;
+  questions.find(q=>q.id===qid).options.forEach((_, i) => {
+    const btn = document.getElementById(`opt-${qid}-${i}`);
+    btn.classList.toggle('selected', i === idx);
+  });
+  document.getElementById(`confirm-${qid}`).disabled = false;
+  updateSubmitBtn();
+}
+
+function selectTF(qid, val) {
+  if (answered[qid]) return;
+  userAnswers[qid] = val;
+  document.getElementById(`opt-${qid}-true`).classList.toggle('selected', val === true);
+  document.getElementById(`opt-${qid}-false`).classList.toggle('selected', val === false);
+  document.getElementById(`confirm-${qid}`).disabled = false;
+  updateSubmitBtn();
+}
+
+function confirmAnswer(qid) {
+  if (answered[qid]) return;
+  answered[qid] = true;
+  const q = questions.find(q => q.id === qid);
+  const ua = userAnswers[qid];
+  const correct = ua === q.answer;
+
+  document.getElementById(`confirm-${qid}`).disabled = true;
+  const card = document.getElementById('qcard-' + qid);
+  card.classList.add(correct ? 'correct' : 'wrong');
+
+  const fb = document.getElementById('feedback-' + qid);
+  fb.className = 'feedback-box show ' + (correct ? 'feedback-correct' : 'feedback-wrong');
+  fb.innerHTML = (correct ? '✅ <strong>Correto!</strong> ' : '❌ <strong>Incorreto.</strong> ') + q.explanation;
+
+  if (q.type === 'mc') {
+    q.options.forEach((_, i) => {
+      const btn = document.getElementById(`opt-${qid}-${i}`);
+      btn.disabled = true;
+      if (i === q.answer) btn.classList.add('correct');
+      else if (i === ua && !correct) btn.classList.add('wrong');
+    });
+  } else {
+    ['true','false'].forEach(v => {
+      const btn = document.getElementById(`opt-${qid}-${v}`);
+      btn.disabled = true;
+      const bval = (v === 'true');
+      if (bval === q.answer) btn.classList.add('correct');
+      else if (bval === ua && !correct) btn.classList.add('wrong');
+    });
+  }
+
+  updateScore();
+  updateProgress();
+  updateSubmitBtn();
+}
+
+function updateScore() {
+  let score = 0;
+  questions.forEach(q => {
+    if (answered[q.id] && userAnswers[q.id] === q.answer) score++;
+  });
+  document.getElementById('score-badge').textContent = score + ' / ' + questions.length;
+}
+
+function updateProgress() {
+  const pct = (Object.keys(answered).length / questions.length) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+}
+
+function updateSubmitBtn() {
+  const allAnswered = questions.every(q => answered[q.id]);
+  document.getElementById('submit-btn').disabled = !allAnswered;
+}
+
+function submitQuiz() {
+  let score = 0;
+  questions.forEach(q => { if (userAnswers[q.id] === q.answer) score++; });
+  const pct = Math.round((score / questions.length) * 100);
+
+  document.getElementById('quiz-container').style.display = 'none';
+  const rc = document.getElementById('result-container');
+  rc.style.display = 'block';
+
+  let color, emoji, msg, sub;
+  if (pct >= 90)      { color='#27ae60'; emoji='🏆'; msg='Excelente! Domínio completo!'; sub='Você demonstrou sólido conhecimento em UML.'; }
+  else if (pct >= 70) { color='#2980b9'; emoji='👏'; msg='Muito Bom! Quase lá!'; sub='Revise os pontos onde errou e você dominará o tema.'; }
+  else if (pct >= 50) { color='#f39c12'; emoji='📚'; msg='Regular. Vale revisar!'; sub='Releia a teoria e os exemplos antes de tentar novamente.'; }
+  else                { color='#e74c3c'; emoji='💪'; msg='Continue Estudando!'; sub='Não desanime — releia o material com atenção.'; }
+
+  const wrong = questions.length - score;
+  document.getElementById('result-screen').innerHTML = `
+    <div class="result-circle" style="color:${color};border-color:${color}">${emoji}</div>
+    <div class="result-msg" style="color:${color}">${msg}</div>
+    <div class="result-sub">${sub}</div>
+    <div class="result-breakdown">
+      <div class="rb-item"><div class="rb-num" style="color:${color}">${pct}%</div><div class="rb-lbl">Aproveitamento</div></div>
+      <div class="rb-item"><div class="rb-num" style="color:#27ae60">${score}</div><div class="rb-lbl">Acertos</div></div>
+      <div class="rb-item"><div class="rb-num" style="color:#e74c3c">${wrong}</div><div class="rb-lbl">Erros</div></div>
+      <div class="rb-item"><div class="rb-num" style="color:#6b7280">${questions.length}</div><div class="rb-lbl">Total</div></div>
+    </div>
+    <button class="restart-btn" onclick="restartQuiz()">🔄 Refazer Questionário</button>
+    <br><br>
+    <button class="confirm-btn" onclick="showPage('gabarito');document.querySelectorAll('.nav-tab')[4].classList.add('active');document.querySelectorAll('.nav-tab').forEach((t,i)=>{if(i!==4)t.classList.remove('active')})">📋 Ver Gabarito Comentado</button>
+  `;
+}
+
+function restartQuiz() {
+  userAnswers = {}; answered = {};
+  document.getElementById('quiz-container').style.display = 'block';
+  document.getElementById('result-container').style.display = 'none';
+  document.getElementById('score-badge').textContent = '0 / ' + questions.length;
+  document.getElementById('progress-bar').style.width = '0%';
+  document.getElementById('submit-btn').disabled = true;
+  renderQuiz();
+}
+
+// ===================== GABARITO =====================
+function buildGabarito() {
+  const wrap = document.getElementById('gabarito-list');
+  wrap.innerHTML = '';
+  questions.forEach((q, idx) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    const typeLabel = q.type === 'mc' ? 'Múltipla Escolha' : 'Verdadeiro ou Falso';
+    let answerText = '';
+    if (q.type === 'mc') answerText = `<strong>${String.fromCharCode(65+q.answer)}) ${q.options[q.answer]}</strong>`;
+    else answerText = q.answer ? '<strong>✅ Verdadeiro</strong>' : '<strong>❌ Falso</strong>';
+
+    card.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+        <div style="flex:1">
+          <div class="q-number">Questão ${idx+1} <span class="q-type">${typeLabel}</span></div>
+          <div class="q-text" style="margin-top:6px">${q.text}</div>
+        </div>
+        <div style="background:#f0fff4;border:1.5px solid #22c55e;border-radius:8px;padding:10px 16px;min-width:160px;text-align:center">
+          <div style="font-size:0.75rem;color:#6b7280;margin-bottom:4px">GABARITO</div>
+          ${answerText}
+        </div>
+      </div>
+      <div class="alert alert-tip" style="margin-top:12px">💡 ${q.explanation}</div>
+    `;
+    wrap.appendChild(card);
+  });
+}
+
+// ===================== INIT =====================
+renderQuiz();
+buildGabarito();
+</script>
+</body>
+</html>
